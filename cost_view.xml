@@ -53,5 +53,29 @@
 		</record>
 
 
+
+		<!-- Form view component-->
+		<record id="view_form_escandallo"
+			model="ir.ui.view">
+			<field name="name">Escandallo Form</field>
+			<field name="model">component.set</field>
+			<field name="arch" type="xml">
+				<form>
+					<field name="name"/>
+					<field name="component_ids" nolabel="1" widget="one2many_list">
+						<tree string="Cost lines" editable="bottom">
+							<field name="product_id" />
+							<field name="unidades" />
+							<field name="qty_ldm" />
+							<field name="price_unit" />
+							<field name="price_total" />
+
+						</tree>
+					</field>
+				</form>
+			</field>
+		</record>
+
+
 	</data>
 </openerp>

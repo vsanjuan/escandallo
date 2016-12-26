@@ -14,6 +14,8 @@ class CostLines(models.Model):
 
 	cost_line_id = fields.Many2one('cost.header','Cost header')
 	product_id = fields.Many2one('product.product',string="Product")
+	## TODO : Add component OnetoMany.
+	component_ids = One2many('component.set','component_set_id',"Componentes") 
 	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
 	qty_ldm = fields.Float(string='Cantidad', default=0)
 	price_unit = fields.Float(string='Precio Unitario')
@@ -22,15 +24,17 @@ class CostLines(models.Model):
                                readonly=True,
                                default=0)
 	is_set = fields.Boolean('Conjunto')
-	component_ids = One2many('set.components','component_id',"Componentes")
+	
 
 
-
+	# Updates Unit of Measure and price when the product_id changes
 	@api.onchange('product_id')
 	def onchange_product_id(self):
 		if self.product_id:
 			self.unidades = self.product_id.uom_id
 			self.price_unit = self.product_id.standard_price
+
+	## TODO: Function to calculate component price adding component BOM and prices
 
 	@api.one
 	@api.depends('qty_ldm','price_unit')
@@ -41,25 +45,34 @@ class CostLines(models.Model):
 
 
 	@api.multi
-    def open_set(self):
+    def open_component(self):
 
-        components = self.env['cost.lines']
-        cost_line_id = components.search(
-            [('mrp_bom_escandall_id', '=', self.id)])
+        components = self.env['component.set']
+        component_id = components.search(
+            [('component_id', '=', self.id)])
         return {
-                'name': self.product_id.name,
+        		## TODO: Load the component name on the form
+                'name': 'Component',
                 'view_type': 'form',
                 'view_mode': 'form',
-                'res_model': 'mrp.bom.line.escandallo',
-                'res_id': calculo_id.id or False,
+                'res_model': 'component.set',
+                'res_id': component_id.id or False,
                 'view_id': False,
                 'type': 'ir.actions.act_window',
                 'target': 'new',
                 }
 
 
-class PieceSet(models.Model):
-	_name = 'set.components'
+class Component(models.Model):
+	_name = "component.set"
+
+	name = fields.Char('Component')
+	component_set_id = fields.Many2one('cost.lines','Component')
+	component_ids = fields.One2many('component.set.line','component_id')
+
+
+class ComponentLines(models.Model):
+	_name = 'component.set.line'
 
 	component_id = fields.Many2one('cost.lines','Component')
 
