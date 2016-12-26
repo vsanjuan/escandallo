@@ -14,8 +14,7 @@ class CostLines(models.Model):
 
 	cost_line_id = fields.Many2one('cost.header','Cost header')
 	product_id = fields.Many2one('product.product',string="Product")
-	## TODO : Add component OnetoMany.
-	component_ids = One2many('component.set','component_set_id',"Componentes") 
+	component_ids = fields.One2many('component.set','component_set_id',"Componentes") 
 	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
 	qty_ldm = fields.Float(string='Cantidad', default=0)
 	price_unit = fields.Float(string='Precio Unitario')
@@ -45,22 +44,39 @@ class CostLines(models.Model):
 
 
 	@api.multi
-    def open_component(self):
+	def open_component(self):
 
-        components = self.env['component.set']
-        component_id = components.search(
-            [('component_id', '=', self.id)])
-        return {
-        		## TODO: Load the component name on the form
-                'name': 'Component',
-                'view_type': 'form',
-                'view_mode': 'form',
-                'res_model': 'component.set',
-                'res_id': component_id.id or False,
-                'view_id': False,
-                'type': 'ir.actions.act_window',
-                'target': 'new',
-                }
+		components = self.env['component.set']
+		component_id = components.search(
+			[('component_id','=',self.id)])
+		return {
+			'name': 'Component',
+			'view_type': 'form',
+			'viev_mode': 'form',
+			'res_id' : component_id.id or False,
+			'view_id': False,
+			'type': 'ir.actions.act_window',
+			'target': 'new',
+		}
+
+
+	# @api.multi
+ #    def open_component(self):
+
+ #        components = self.env['component.set']
+ #        component_id = components.search(
+ #            [('component_id', '=', self.id)])
+ #        return {
+ #        		## TODO: Load the component name on the form
+ #                'name': 'Component',
+ #                'view_type': 'form',
+ #                'view_mode': 'form',
+ #                'res_model': 'component.set',
+ #                'res_id': component_id.id or False,
+ #                'view_id': False,
+ #                'type': 'ir.actions.act_window',
+ #                'target': 'new',
+ #                }
 
 
 class Component(models.Model):
