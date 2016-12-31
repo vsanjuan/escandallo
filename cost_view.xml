@@ -59,6 +59,7 @@
 							<field name="unidades" />
 							<field name="qty_ldm" />
 							<field name="price_unit" />
+							<button name="open_component" type="object" icon="gtk-go-forward" context="{'material_id':product_id}" class="oe_edit_only"></button>
 							<field name="price_total" />
 
 						</tree>
@@ -100,6 +101,11 @@
 
 						</tree>
 					</field>
+					<footer>
+                        <button name="save_component" type="object"
+                                string="Guardar" class="oe_highlight"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
 				</form>
 			</field>
 		</record>
