@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, fields, api,_
+from openerp import models, fields, api, _
 
 class CostHeader(models.Model):
 	_name = 'cost.header' 
@@ -18,7 +18,12 @@ class CostLines(models.Model):
 	component_name = fields.Char('Component')
 	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
 	qty_ldm = fields.Float(string='Cantidad', default=0)
-	price_unit = fields.Float(string='Precio Unitario')
+	price_unit = fields.Float(string='Precio Unitario',default=0)
+	discount = fields.Float(string='Descuento', default=0)
+	price_unit_net = fields.Float(compute='unit_net_price',
+								  string='Precio neto',
+								  readonly=True,
+								  default=0)
 	price_total = fields.Float(compute='onchange_qty_price',
                                string=_('Precio Total'),
                                readonly=True,
@@ -35,14 +40,19 @@ class CostLines(models.Model):
 			self.unidades = self.product_id.uom_id
 			self.price_unit = self.product_id.standard_price
 
+	# Actualizar el valor neto unitario al cambiar el precio unitario
+	@api.onchange('price_unit','discount')
+	def unit_net_price(self):
+		self.price_unit_net = self.price_unit * (1 - self.discount/100)
+
 
 	# Actualiza el campo price_total cuando varía el precio o la cantidad
 	@api.one
-	@api.depends('qty_ldm','price_unit')
-	@api.onchange('qty_ldm','price_unit')
+	@api.depends('qty_ldm','price_unit','discount')
+	@api.onchange('qty_ldm','price_unit','discount')
 	def onchange_qty_price(self):
 		if self.qty_ldm and self.price_unit:
-			self.price_total = self.qty_ldm * self.price_unit
+			self.price_total = self.qty_ldm * self.price_unit * (1 - self.discount/100)
 
 
 	# Open a window with the components
