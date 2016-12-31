@@ -6,6 +6,12 @@
 			res_model='cost.header'
 			view_mode="tree,form" />
 
+		<!-- Action to open component -->
+		<act_window id="action_component"
+			name="Component Analysis"
+			res_model='component.header'
+			view_mode="tree,form" />
+
 		<!-- Menu time to open To-od Task list -->
 		<menuitem id="menu_cost_analysis_main"
 			name="Main Escandallo"
@@ -15,6 +21,15 @@
 			parent="mail.mail_feeds"
 			sequence="20"
 			action="action_escandallo"
+			 />
+
+
+		<!-- Menu itme to open component list -->
+		<menuitem id="menu_cost_analysis_component"
+			name="Component analysis "
+			parent="mail.mail_feeds"
+			sequence="20"
+			action="action_component"
 			 />
 
 
@@ -35,6 +50,43 @@
 			model="ir.ui.view">
 			<field name="name">Escandallo Form</field>
 			<field name="model">cost.header</field>
+			<field name="arch" type="xml">
+				<form>
+					<field name="name"/>
+					<field name="cost_ids" nolabel="1" widget="one2many_list">
+						<tree string="Cost lines" editable="bottom">
+							<field name="product_id" />
+							<field name="unidades" />
+							<field name="qty_ldm" />
+							<field name="price_unit" />
+							<field name="price_total" />
+
+						</tree>
+					</field>
+				</form>
+			</field>
+		</record>
+
+		<!-- Component Views -->
+
+
+		<!-- Tree view -->
+		<record id="view_tree_component"
+			model="ir.ui.view">
+			<field name="name">Cost analysis tree</field>
+			<field name="model">component.header</field>
+			<field name="arch" type="xml">
+				<tree color="gray:is_done==True">
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>
+
+		<!-- Form view -->
+		<record id="view_form_component"
+			model="ir.ui.view">
+			<field name="name">Component Form</field>
+			<field name="model">component.header</field>
 			<field name="arch" type="xml">
 				<form>
 					<field name="name"/>
