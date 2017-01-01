@@ -53,6 +53,7 @@
 			<field name="arch" type="xml">
 				<form>
 					<field name="name"/>
+					<field name="material_cost"/>
 					<field name="cost_ids" nolabel="1" widget="one2many_list">
 						<tree string="Cost lines" editable="bottom">
 							<field name="product_id" />

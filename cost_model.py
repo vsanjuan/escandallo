@@ -7,9 +7,23 @@ class CostHeader(models.Model):
 
 	name = fields.Char("Code")
 	cost_ids = fields.One2many('cost.lines','cost_line_id','BOM')
-	#price_total = fields.Float(compute='on_change_lines', )
-							
+	material_cost = fields.Float(compute='cost_materials',string='Material Cost')
 
+
+	# Actualiza el valor del coste de los materiales cuando se modifican la líneas
+	@api.one 
+	@api.onchange('cost_ids')
+	def cost_materials(self):
+
+		total = 0
+
+		for i in self.cost_ids:
+			total += i.qty_ldm * i.price_unit * ( 1- i.discount /100 )
+
+		self.material_cost = total
+
+
+							
 class CostLines(models.Model):
 	_name= 'cost.lines'
 
