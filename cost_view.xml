@@ -52,21 +52,29 @@
 			<field name="model">cost.header</field>
 			<field name="arch" type="xml">
 				<form>
-					<field name="name"/>
-					<field name="material_cost"/>
-					<field name="cost_ids" nolabel="1" widget="one2many_list">
-						<tree string="Cost lines" editable="bottom">
-							<field name="product_id" />
-							<field name="unidades" />
-							<field name="qty_ldm" />
-							<field name="price_unit" />
-							<button name="open_component" type="object" icon="gtk-go-forward" context="{'material_id':product_id}" class="oe_edit_only"></button>
-							<field name="discount" />
-							<field name="price_unit_net" />
-							<field name="price_total" />
-
-						</tree>
-					</field>
+					<sheet>
+						<div clas="oe_title">
+							<label for="name" class="oe_edit_only"/>
+							<h1><field name="name"/></h1>
+						</div>
+						<group name="group_top">
+							<group name="group_left">
+								<field name="material_cost"/>
+							</group>
+						</group>
+						<field name="cost_ids" nolabel="1" widget="one2many_list">
+							<tree string="Cost lines" editable="bottom">
+								<field name="product_id" />
+								<field name="unidades" />
+								<field name="qty_ldm" />
+								<field name="price_unit" />
+								<button name="open_component" type="object" icon="gtk-go-forward" context="{'material_id':product_id}" class="oe_edit_only"></button>
+								<field name="discount" />
+								<field name="price_unit_net" />
+								<field name="price_total" sum="Total Cost" />
+							</tree>
+						</field>
+					</sheet>
 				</form>
 			</field>
 		</record>
@@ -100,7 +108,7 @@
 							<field name="unidades" />
 							<field name="qty_ldm" />
 							<field name="price_unit" />
-							<field name="price_total" />
+							<field name="price_total" sum="Total Cost" />
 
 						</tree>
 					</field>

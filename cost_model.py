@@ -12,7 +12,8 @@ class CostHeader(models.Model):
 
 	# Actualiza el valor del coste de los materiales cuando se modifican la líneas
 	@api.one 
-	@api.onchange('cost_ids')
+	@api.onchange('cost_ids','cost_ids.component_ids')
+	@api.depends('cost_ids.price_total')
 	def cost_materials(self):
 
 		total = 0
@@ -41,6 +42,7 @@ class CostLines(models.Model):
 	price_total = fields.Float(compute='onchange_qty_price',
                                string=_('Precio Total'),
                                readonly=True,
+                               #store=True,
                                default=0)
 
 	# Link cost lines to component
@@ -55,6 +57,7 @@ class CostLines(models.Model):
 			self.price_unit = self.product_id.standard_price
 
 	# Actualizar el valor neto unitario al cambiar el precio unitario
+	@api.one
 	@api.onchange('price_unit','discount')
 	def unit_net_price(self):
 		self.price_unit_net = self.price_unit * (1 - self.discount/100)
@@ -62,7 +65,6 @@ class CostLines(models.Model):
 
 	# Actualiza el campo price_total cuando varía el precio o la cantidad
 	@api.one
-	@api.depends('qty_ldm','price_unit','discount')
 	@api.onchange('qty_ldm','price_unit','discount')
 	def onchange_qty_price(self):
 		if self.qty_ldm and self.price_unit:
