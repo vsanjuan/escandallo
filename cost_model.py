@@ -5,8 +5,21 @@ from openerp import models, fields, api, _
 class CostHeader(models.Model):
 	_name = 'cost.header' 
 
+	# General Fields
+
 	name = fields.Char("Code")
-	units = fields.Integer('Units')
+	customer_id = fields.Many2one('res.partner',string='Cliente',domain=[('customer','=',True)])
+	version = fields.Char(string=_("Version"))
+	description = fields.Text(string=_('Description'))
+	start_date = fields.Date(string=_("Start Date"))
+	end_date = fields.Date(string=_('End Date'))
+
+	stage = fields.Selection([('pending','Pendiente'),('doing','En curso'),('done','Realizado')])
+
+
+	units = fields.Integer('Units',default=1)
+
+	# Cost Fields
 
 	cost_ids = fields.One2many('cost.lines','cost_line_id','BOM')
 	work_ids = fields.One2many('work.lines','cost_line_id','Work')
@@ -22,7 +35,7 @@ class CostHeader(models.Model):
 
 	# Actualiza el valor del coste de los materiales cuando se modifican la líneas
 	@api.one 
-	@api.onchange('cost_ids','cost_ids.component_ids')
+	@api.onchange('cost_ids')
 	@api.depends('cost_ids.price_total')
 	def cost_materials(self):
 
@@ -68,7 +81,7 @@ class CostLines(models.Model):
 	product_id = fields.Many2one('product.product',string="Product")
 	component_name = fields.Char('Component')
 	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
-	qty_ldm = fields.Float(string='Cantidad', default=0)
+	qty_ldm = fields.Float(string='Cantidad', default=1)
 	price_unit = fields.Float(string='Precio Unitario',default=0)
 	discount = fields.Float(string='Descuento', default=0)
 	price_unit_net = fields.Float(compute='unit_net_price',
@@ -97,6 +110,17 @@ class CostLines(models.Model):
 	@api.onchange('price_unit','discount')
 	def unit_net_price(self):
 		self.price_unit_net = self.price_unit * (1 - self.discount/100)
+
+	# Actualizar el precio cuando seleccciona componente
+	# @api.one
+	# @api.onchange('component_ids')
+	# def _unit_price(self):
+	# 	total = 0
+	# 	for i in self.component_ids:
+	# 		total = i.cost_ids.qty_ldm * i.cost_ids.price_unit
+
+	# 	self.price_unit = total
+
 
 
 	# Actualiza el campo price_total cuando varía el precio o la cantidad
@@ -144,7 +168,8 @@ class ComponentHeader(models.Model):
 
 		# Warning! Don't know how but prevents getting several lines
 		self.cost_line_id = self._context.get('active_ids')[0] 
-		self.cost_line_id.price_unit = total 
+		self.cost_line_id.price_unit = total
+		return True 
 
 
 class ComponentLines(models.Model):
