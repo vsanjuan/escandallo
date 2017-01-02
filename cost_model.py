@@ -6,8 +6,18 @@ class CostHeader(models.Model):
 	_name = 'cost.header' 
 
 	name = fields.Char("Code")
+	units = fields.Integer('Units')
+
 	cost_ids = fields.One2many('cost.lines','cost_line_id','BOM')
-	material_cost = fields.Float(compute='cost_materials',string='Material Cost')
+	work_ids = fields.One2many('work.lines','cost_line_id','Work')
+	material_cost = fields.Float(compute='cost_materials',string='Unit Material Cost')
+	work_cost = fields.Float(compute='cost_work',string="Unit Work cost")
+	material_markup = fields.Float(string="% Markup") 
+	material_cost_markup = fields.Float(compute='_markup',string='Total Unit Price') # Material cost including markup
+	unit_margin = fields.Float(string="Unit margin")
+	project_margin = fields.Float(string='Project margin')
+	unit_price = fields.Float(compute='_unit_price',string=_("Precio Unitario"))
+	total_price = fields.Float(string=_("Total Price"))
 
 
 	# Actualiza el valor del coste de los materiales cuando se modifican la líneas
@@ -23,6 +33,32 @@ class CostHeader(models.Model):
 
 		self.material_cost = total
 
+	# Actualiza el valor del coste del trabajo cuando se modifican la líneas
+	@api.one 
+	@api.onchange('work_ids')
+	def cost_work(self):
+
+		total = 0
+
+		for i in self.work_ids:
+			total += i.qty_ldm * i.price_unit * ( 1- i.discount /100 )
+
+		self.work_cost = total
+
+	# Calcula el valor de los materiales con el markup
+	@api.one
+	@api.onchange('material_cost','material_markup','units')
+	def _markup(self):
+		self.material_cost_markup = self.material_cost * (1 + self.material_markup/100)
+		self.project_margin = self.material_cost * self.units * self.material_markup / 100
+		self.unit_margin = self.material_cost * self.material_markup / 100
+
+	# Calcula el precio de venta unitario
+	@api.one
+	@api.onchange('material_cost_markup','work_cost','units')
+	def _unit_price(self):
+		self.unit_price = self.material_cost_markup + self.work_cost
+		self.total_price = self.units * ( self.material_cost_markup + self.work_cost)
 
 							
 class CostLines(models.Model):
@@ -94,7 +130,6 @@ class ComponentHeader(models.Model):
 	name = fields.Char("Code")
 	cost_ids = fields.One2many('component.lines','cost_line_id','BOM')
 	cost_line_id = fields.Many2one('cost.lines')
-	#price_total = fields.Float(compute='on_change_lines', )
 
 	@api.multi
 	def save_component(self):
@@ -112,7 +147,7 @@ class ComponentHeader(models.Model):
 		self.cost_line_id.price_unit = total 
 
 
-class CostLines(models.Model):
+class ComponentLines(models.Model):
 	_name= 'component.lines'
 
 	cost_line_id = fields.Many2one('component.header','Component header')
@@ -136,14 +171,18 @@ class CostLines(models.Model):
 
 	# Actualiza el campo price_total cuando varía el precio o la cantidad
 	@api.one
-	@api.depends('qty_ldm','price_unit')
 	@api.onchange('qty_ldm','price_unit')
 	def onchange_qty_price(self):
 		if self.qty_ldm and self.price_unit:
 			self.price_total = self.qty_ldm * self.price_unit
 
 
+class WorkLines(CostLines):
+	_name= 'work.lines'
+
+	cost_line_id = fields.Many2one('cost.header','Headlines')
 
 
 
+	
 
