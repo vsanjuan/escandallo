@@ -15,10 +15,16 @@
 		<!-- Menu time to open To-od Task list -->
 		<menuitem id="menu_cost_analysis_main"
 			name="Main Escandallo"
-			sequence="10"/>
+			sequence="450"/>
 		<menuitem id="menu_cost_analysis_escandallo"
 			name="Cost analysis "
-			parent="mail.mail_feeds"
+			parent="menu_cost_analysis_main"
+			sequence="10"
+			 />
+
+		<menuitem id="menu_cost_analysis_escandallo_detail"
+			name="Cost analysis detail"
+			parent="menu_cost_analysis_escandallo"
 			sequence="20"
 			action="action_escandallo"
 			 />
