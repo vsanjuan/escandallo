@@ -21,7 +21,6 @@
 			parent="menu_cost_analysis_main"
 			sequence="10"
 			 />
-
 		<menuitem id="menu_cost_analysis_escandallo_detail"
 			name="Cost analysis detail"
 			parent="menu_cost_analysis_escandallo"
@@ -64,8 +63,11 @@
 			<field name="name">Cost analysis search</field>
 			<field name="model">cost.header</field>
 			<field name="arch" type="xml">
-				<search>
-					<field name="name"/>
+				<search String="Search Escandallo">
+					<field name="name" string="Escandallo"
+						filter_domain="['|','|',('customer_id','ilike',self),('name','ilike',self),('version','ilike',self)]"/>
+					<field name="customer_id" string="Customer" />
+					<field name="name" String="Name" />
 					<filter string="Not Done"
 						domain="[('stage','!=','done')]"/>
 					<separator/>
