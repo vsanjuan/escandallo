@@ -8,13 +8,13 @@ class CostHeader(models.Model):
 	# General Fields
 
 	name = fields.Char("Code")
-	customer_id = fields.Many2one('res.partner',string='Cliente',domain=[('customer','=',True)])
+	customer_id = fields.Many2one('res.partner',string=_('Customer'),domain=[('customer','=',True)])
 	version = fields.Char(string=_("Version"))
 	description = fields.Text(string=_('Description'))
 	start_date = fields.Date(string=_("Start Date"))
 	end_date = fields.Date(string=_('End Date'))
 
-	stage = fields.Selection([('pending','Pendiente'),('doing','En curso'),('done','Realizado')])
+	stage = fields.Selection([('pending','Pending'),('doing','In Process'),('done','Done')])
 
 
 	units = fields.Integer('Units',default=1)
@@ -23,14 +23,14 @@ class CostHeader(models.Model):
 
 	cost_ids = fields.One2many('cost.lines','cost_line_id','BOM')
 	work_ids = fields.One2many('work.lines','cost_line_id','Work')
-	material_cost = fields.Float(compute='cost_materials',string='Unit Material Cost')
-	work_cost = fields.Float(compute='cost_work',string="Unit Work cost")
-	material_markup = fields.Float(string="% Markup") 
-	material_cost_markup = fields.Float(compute='_markup',string='Total Unit Price') # Material cost including markup
-	unit_margin = fields.Float(string="Unit margin")
-	project_margin = fields.Float(string='Project margin')
-	unit_price = fields.Float(compute='_unit_price',string=_("Precio Unitario"))
-	total_price = fields.Float(string=_("Total Price"))
+	material_cost = fields.Float(compute='cost_materials',string= _('Unit Material Cost'))
+	work_cost = fields.Float(compute='cost_work',string=_('Unit Work cost'))
+	material_markup = fields.Float(string=_('% Markup')) 
+	material_cost_markup = fields.Float(compute='_markup',string=_('Total Unit Price')) # Material cost including markup
+	unit_margin = fields.Float(string=_('Unit margin'))
+	project_margin = fields.Float(string=_('Project margin'))
+	unit_price = fields.Float(compute='_unit_price',string=_('Unit price'))
+	total_price = fields.Float(string=_('Total Price'))
 
 
 	# Actualiza el valor del coste de los materiales cuando se modifican la líneas
@@ -78,18 +78,18 @@ class CostLines(models.Model):
 	_name= 'cost.lines'
 
 	cost_line_id = fields.Many2one('cost.header','Cost header')
-	product_id = fields.Many2one('product.product',string="Product")
-	component_name = fields.Char('Component')
-	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
-	qty_ldm = fields.Float(string='Cantidad', default=1)
-	price_unit = fields.Float(string='Precio Unitario',default=0)
-	discount = fields.Float(string='Descuento', default=0)
+	product_id = fields.Many2one('product.product',string=_('Product'))
+	component_name = fields.Char(string=_('Component'))
+	unidades = fields.Many2one('product.uom', string=_('Units'),readonly=True)
+	qty_ldm = fields.Float(string=_('Amount'), default=1)
+	price_unit = fields.Float(string=_('Unit price'),default=0)
+	discount = fields.Float(string=_('Discount'), default=0)
 	price_unit_net = fields.Float(compute='unit_net_price',
-								  string='Precio neto',
+								  string=_('Net price'),
 								  readonly=True,
 								  default=0)
 	price_total = fields.Float(compute='onchange_qty_price',
-                               string=_('Precio Total'),
+                               string=_('Total Value'),
                                readonly=True,
                                #store=True,
                                default=0)
@@ -176,12 +176,12 @@ class ComponentLines(models.Model):
 	_name= 'component.lines'
 
 	cost_line_id = fields.Many2one('component.header','Component header')
-	product_id = fields.Many2one('product.product',string="Product")
-	unidades = fields.Many2one('product.uom', string='Unidades',readonly=True)
-	qty_ldm = fields.Float(string='Cantidad', default=0)
-	price_unit = fields.Float(string='Precio Unitario')
+	product_id = fields.Many2one('product.product',string=_('Product'))
+	unidades = fields.Many2one('product.uom', string=_('Units'),readonly=True)
+	qty_ldm = fields.Float(string=_('Amount'), default=0)
+	price_unit = fields.Float(string=_('Unit Price'))
 	price_total = fields.Float(compute='onchange_qty_price',
-                               string=_('Precio Total'),
+                               string=_('Total Value'),
                                readonly=True,
                                default=0)
 
